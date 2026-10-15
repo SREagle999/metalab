@@ -1,0 +1,19 @@
+schema_version: 1
+name: DemoBulkSigma
+dimensionality: 3
+symmetry: isotropic
+components:
+- iso
+input_type: sigma
+spectral_units: Hz
+response_units: S/m
+time_convention: exp(-i*omega*t)
+source_description: Illustrative software fixture; not a measured or fitted material
+  dataset.
+data_status: illustrative
+epsilon_background: 1.0
+valid_frequency_range:
+  min: 1000000000000.0
+  max: 8000000000000.0
+  unit: Hz
+data_file: data.csv

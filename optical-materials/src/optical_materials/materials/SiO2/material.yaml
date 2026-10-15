@@ -1,0 +1,19 @@
+schema_version: 1
+name: SiO2
+dimensionality: 3
+symmetry: isotropic
+components:
+- iso
+input_type: drude_lorentz
+spectral_units: cm-1
+response_units: dimensionless
+time_convention: exp(-i*omega*t)
+source_description: Illustrative SiO2-labelled Lorentz model for infrared pipeline
+  testing. Parameters are invented, not a published SiO2 fit.
+data_status: illustrative
+epsilon_background: 1.0
+valid_frequency_range:
+  min: 100.0
+  max: 2000.0
+  unit: cm-1
+parameter_file: parameters.csv

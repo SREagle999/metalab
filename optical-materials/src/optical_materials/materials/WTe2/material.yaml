@@ -1,0 +1,20 @@
+schema_version: 1
+name: WTe2
+dimensionality: 2
+symmetry: anisotropic
+components:
+- x
+- y
+input_type: conductivity_model
+spectral_units: eV
+response_units: S
+time_convention: exp(-i*omega*t)
+source_description: Illustrative WTe2-labelled anisotropic sheet model. Invented Drude
+  and Lorentz weights; not experimental WTe2 optical data.
+data_status: illustrative
+epsilon_background: 1.0
+valid_frequency_range:
+  min: 0.01
+  max: 0.6
+  unit: eV
+parameter_file: parameters.csv

@@ -40,7 +40,7 @@ film_eps = wte2.epsilon(w, thickness_m=1e-9)  # explicit effective film
 - Without `component`, bulk epsilon and sigma have shape `omega.shape + (3,3)`. Sheet sigma has shape `omega.shape + (2,2)`. Isotropic values expand along every diagonal. A scalar query returns a single tensor. A component query returns the query shape, including a zero-dimensional array for scalar input.
 - In 3D, anisotropic files must provide x, y, z explicitly; in 2D they must provide x, y. `symmetry: uniaxial` requires a pair of equal components. No missing axis is filled silently.
 - Permittivity is dimensionless; bulk conductivity is S/m; sheet conductivity is S. Sheet epsilon requires `thickness_m` in metres. The resulting film has x/y conductivity divided by thickness and z equal to the selected background. This is an explicit modeling choice, not a measurement of out-of-plane response.
-- For response conversions, `epsilon_bg` overrides the scalar metadata `epsilon_background` (default 1). A frequency-dependent background array may be supplied if it broadcasts to the query shape. Derived sigma from epsilon is **effective conductivity relative to that background**. It cannot separate conduction from bound polarization without that choice. Background overrides are rejected when requesting a response that is already native.
+- For response conversions, `epsilon_bg` overrides the scalar metadata `epsilon_background` (default 1). A frequency-dependent background array may be supplied only if it broadcasts into the existing query shape without expanding it. For example, a `(2,)` query accepts a scalar or `(2,)` background, but rejects a `(2,1)` background. The same rule applies to bulk and sheet conversions. Derived sigma from epsilon is **effective conductivity relative to that background**. It cannot separate conduction from bound polarization without that choice. Background overrides are rejected when requesting a response that is already native.
 - `epsilon_to_nk` takes the principal square root. Passive materials have nonnegative n and kappa; gain media can have negative kappa. No automatic passivity correction or Kramers–Kronig enforcement is applied.
 
 The conversions are:
@@ -77,7 +77,9 @@ The loader rejects unknown units, conflicting spectral headers, mixed coordinate
 
 Nonmonotonic tables are sorted and produce a `MaterialWarning`, with `was_sorted` recorded in metadata. n/kappa is converted to epsilon **before** interpolation; equivalent sampled n/kappa and epsilon sources therefore agree between samples. Linear interpolation is applied independently to real and imaginary parts. Native conductivity tables are interpolated in sigma and then converted to epsilon. Results from interpolated sigma and interpolated epsilon need not agree between samples because this conversion depends on frequency.
 
-The declared valid range must lie within the tabulated domain. Both models and tables reject all queries outside their stated valid range. There is no implicit extrapolation, clipping, duplicate averaging, or DC regularization. Very narrow undamped resonances can be singular; nonfinite evaluated responses are rejected.
+The declared valid range must lie within the tabulated domain. Models and tables reject queries outside that range, allowing only rounding noise within eight machine epsilons relative to each endpoint. A query just outside an endpoint within that tolerance is evaluated at the endpoint. Interior queries are unchanged; meaningful extrapolation remains disabled. This rule is shared by the material interface and interpolator. There is no duplicate averaging or DC regularization. Very narrow undamped resonances can be singular; nonfinite evaluated responses are rejected.
+
+For tabulated uniaxial materials, equality of principal components is checked at both valid-range boundaries and every table point within the range. A range may lie entirely between samples; it remains valid for interpolation. Analytical uniaxial models are checked on a 129-point grid over their declared range.
 
 ## Add, save, and reload definitions
 
@@ -93,6 +95,8 @@ restored = load_material("saved-materials/MyMaterial")
 ```
 
 Custom databases take precedence over built-ins of the same name. `available_materials(database=...)` lists both. Save/reload preserves the source coordinate units, input time convention, arbitrary provenance metadata, and original CSV/TSV/JSON bytes. Analytical models remain analytical; they are never replaced by sampled curves. Saving refuses to overwrite an existing folder.
+
+When distributing the package, all files under its `materials/` tree are included recursively. JSON, TSV, text, custom file extensions, and nested payloads accompany their metadata. A regression test builds a wheel with five additional material formats and loads them in a separate interpreter outside the source checkout.
 
 See [the complete file schema](docs/material_schema.md) for column mappings, parameter units, and a minimal new-material example. The notebook adds a custom material using only new data files, verifies save/reload numerically, generates diagnostic plots for every bundled material, and checks equivalence in both formats.
 
@@ -115,3 +119,5 @@ tests/                  numerical and input-error regression suite
 ```
 
 For a new file/source adapter, use `register_loader(input_type, loader)`. Its descriptor contract is documented in the schema guide. Existing formats require only a new material folder. Core numerical evaluators never parse CSV/YAML or know database names. Off-diagonal tensors, tensor rotations, permeability, automatic fitting, and dispersion/eigenmode solvers are outside this release.
+
+See [the change log](CHANGELOG.md) for the fixes in version 0.1.1 and [verification results](docs/verification.md) for checks and remaining physical-data limitations.

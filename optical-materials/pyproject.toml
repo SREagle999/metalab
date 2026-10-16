@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "optical-materials-pipeline"
-version = "0.1.0"
+version = "0.1.1"
 description = "Validated optical response data with a common tensor interface"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -12,10 +12,11 @@ dependencies = ["numpy>=1.24,<3", "PyYAML>=6,<7", "matplotlib>=3.8,<4"]
 
 [project.optional-dependencies]
 notebook = ["jupyterlab>=4,<5", "ipykernel>=6,<8"]
-dev = ["build>=1,<2", "nbclient>=0.10,<1", "nbformat>=5,<6"]
+dev = ["build>=1,<2", "nbclient>=0.10,<1", "nbformat>=5,<6", "setuptools>=69"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-optical_materials = ["materials/*/*.yaml", "materials/*/*.csv"]
+# Include every material payload, including nested files and custom extensions.
+optical_materials = ["materials/**/*"]

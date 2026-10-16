@@ -13,16 +13,19 @@ from .material import Material
 
 BUILTIN_DATABASE = Path(__file__).parent / "materials"
 
+
 def _safe_file(folder, filename):
     path = (folder / filename).resolve()
     if not path.is_relative_to(folder.resolve()) or path == folder.resolve():
         raise MaterialError("Material data/parameter files must be inside their own material folder.")
     return path
 
+
 def available_materials(database=None):
     """List folders containing material.yaml; custom roots override built-ins."""
     roots = [BUILTIN_DATABASE] if database is None else [BUILTIN_DATABASE, Path(database)]
     return sorted({p.parent.name for root in roots if root.is_dir() for p in root.glob("*/material.yaml")})
+
 
 def load_material(name, database=None):
     """Load a built-in name, custom database name, folder, or metadata YAML path."""
@@ -72,11 +75,17 @@ def load_material(name, database=None):
         probe = material.omega
         if probe is None:
             probe = np.geomspace(*valid_range, 129)
-        probe = probe[(probe >= valid_range[0]) & (probe <= valid_range[1])]
+        else:
+            # Include both boundaries even when the range lies between samples.
+            # For a linear interpolant, these and every interior knot cover all
+            # segments; equality at a single interior knot is not sufficient.
+            interior = probe[(probe >= valid_range[0]) & (probe <= valid_range[1])]
+            probe = np.unique(np.concatenate(([valid_range[0]], interior, [valid_range[1]])))
         pairs = [("x", "y"), ("x", "z"), ("y", "z")]
         if not any(np.allclose(material._native_component(probe, a), material._native_component(probe, b), rtol=1e-10, atol=1e-12) for a, b in pairs):
             raise MaterialError("uniaxial metadata requires two equal principal responses. Use biaxial/anisotropic or correct the component data.")
     return material
+
 
 def save_material(material, directory):
     """Save the original definition and numeric file without sampling models.

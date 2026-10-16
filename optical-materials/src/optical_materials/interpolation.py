@@ -3,7 +3,9 @@ import warnings
 import numpy as np
 from .units import real_array
 from .conversions import complex_array
-from .errors import MaterialError, MaterialWarning, RangeError
+from .errors import MaterialError, MaterialWarning
+from .validation import bounded_omega
+
 
 class ComplexInterpolator:
     def __init__(self, omega, responses):
@@ -28,9 +30,8 @@ class ComplexInterpolator:
             self.responses[component].setflags(write=False)
 
     def __call__(self, omega, component):
-        query = real_array(omega, "Angular frequencies (rad/s)", positive=True)
-        if np.any(query < self.omega[0]) or np.any(query > self.omega[-1]):
-            raise RangeError("Interpolation outside measured spectral points is disabled.")
+        query = bounded_omega(omega, self.omega[0], self.omega[-1],
+                              label="Interpolation angular frequencies (rad/s)")
         values = self.responses[component]
         result = (np.interp(query.ravel(), self.omega, values.real) +
                   1j * np.interp(query.ravel(), self.omega, values.imag))

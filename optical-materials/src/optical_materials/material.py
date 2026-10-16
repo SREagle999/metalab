@@ -3,8 +3,9 @@ from copy import deepcopy
 from types import MappingProxyType
 import numpy as np
 from .units import real_array
-from .errors import MaterialError, RangeError, ResponseUnavailableError
+from .errors import MaterialError, ResponseUnavailableError
 from .conversions import complex_array, sigma_to_epsilon, epsilon_to_sigma
+from .validation import bounded_omega
 
 
 class Material:
@@ -71,11 +72,21 @@ class Material:
         return result
 
     def _query(self, omega):
-        query = real_array(omega, "Query angular frequencies (rad/s)", positive=True)
-        lower, upper = self._valid_range
-        if np.any(query < lower) or np.any(query > upper):
-            raise RangeError(f"{self.name}: requested angular frequency is outside [{lower:.8g}, {upper:.8g}] rad/s. Convert your coordinate with to_omega first; extrapolation is disabled.")
-        return query
+        return bounded_omega(omega, *self._valid_range,
+                             label=f"{self.name}: query angular frequencies (rad/s)")
+
+    def _background_for_query(self, omega, epsilon_bg):
+        """A background may broadcast into the query shape, never expand it.
+
+        Keep this rule at the material boundary. Low-level conversion functions
+        also support explicitly aligned tensor arrays with extra tensor axes.
+        """
+        value = self._definition.get("epsilon_background", 1.0) if epsilon_bg is None else epsilon_bg
+        background = complex_array(value, "Background permittivity")
+        try:
+            return np.broadcast_to(background, omega.shape)
+        except ValueError as exc:
+            raise MaterialError("Background permittivity must be a scalar or broadcast to the frequency query shape without expanding it.") from exc
 
     def _component(self, component):
         if component == "iso" and self._definition["symmetry"] == "isotropic":
@@ -107,20 +118,13 @@ class Material:
         w = self._query(omega)
         if self._native == "epsilon" and epsilon_bg is not None:
             raise MaterialError("epsilon_bg is only used when converting conductivity to permittivity; this material already provides permittivity.")
-        background = self._definition.get("epsilon_background", 1.0) if epsilon_bg is None else epsilon_bg
+        background = self._background_for_query(w, epsilon_bg)
         if self.dimensionality == 2:
             if thickness_m is None:
                 raise ResponseUnavailableError(f"{self.name} is a 2D sheet in S. Supply thickness_m explicitly to obtain an effective film permittivity.")
             thickness = real_array(thickness_m, "Film thickness in m", positive=True)
             if thickness.ndim != 0:
                 raise MaterialError("Film thickness must be one positive value in metres.")
-            # Validate even the z-only path; its value is the selected background.
-            background = complex_array(background, "Background permittivity")
-            try:
-                background = np.broadcast_to(background, w.shape)
-            except ValueError as exc:
-                raise MaterialError("Background permittivity must broadcast to the frequency query shape.") from exc
-
             def evaluate(c):
                 if c == "z":
                     return background.copy()
@@ -149,7 +153,7 @@ class Material:
         w = self._query(omega)
         if self._native == "sigma" and epsilon_bg is not None:
             raise MaterialError("epsilon_bg is only needed to derive effective conductivity from permittivity; native conductivity is already defined.")
-        background = self._definition.get("epsilon_background", 1.0) if epsilon_bg is None else epsilon_bg
+        background = self._background_for_query(w, epsilon_bg)
         def evaluate(c):
             native = self._native_component(w, c)
             return native if self._native == "sigma" else epsilon_to_sigma(native, w, background)

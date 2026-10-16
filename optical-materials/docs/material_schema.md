@@ -2,6 +2,8 @@
 
 Each material folder contains `material.yaml` plus a table or a parameter file. YAML is loaded safely. Files must stay within their material folder. Schema version 1 supports CSV, TSV, whitespace-delimited text (set `delimiter: whitespace`), and JSON row-record tables. Parameter tables use the same reader but usually CSV. Blank lines and lines beginning with `#` are ignored for text tables.
 
+The distribution includes the material directory recursively, so a reference such as `data_file: measurements/response.json` works both from source and after installation. Keep only material assets inside this tree.
+
 ## Minimal tabulated input
 
 ```yaml
@@ -52,6 +54,8 @@ columns:
 ```
 
 For isotropic input, `components: [iso]`; for 3D anisotropy, `[x, y, z]`; for a sheet, `[x, y]`. Symmetry can be `isotropic`, `uniaxial`, `biaxial`, or `anisotropic`. Principal components must be in that explicit order. For uniaxial bulk input, repeat the equal responses explicitly; the loader checks them. This release represents no off-diagonal response.
+
+For a uniaxial table, the loader compares components at the valid-range endpoints and all interior table points. The range can fall between samples; interpolation at its endpoints supplies the comparison points. Model symmetry is checked on a 129-point grid.
 
 ## Drude–Lorentz permittivity
 

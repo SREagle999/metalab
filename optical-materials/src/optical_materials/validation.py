@@ -1,7 +1,24 @@
 """Validate metadata before interpreting numeric files."""
 import numpy as np
-from .errors import MaterialError
-from .units import unit_factor, to_omega
+from .errors import MaterialError, RangeError
+from .units import unit_factor, to_omega, real_array
+
+
+def bounded_omega(omega, lower, upper, *, label="Angular frequencies (rad/s)"):
+    """Reject extrapolation, allowing only floating-point noise at endpoints.
+
+    The tolerance is local to each endpoint, so a wide domain cannot enlarge
+    the tolerance at its low-frequency edge. Only outlying values within eight
+    machine epsilons of an endpoint are snapped. Interior queries are unchanged.
+    """
+    query = real_array(omega, label, positive=True)
+    relative_tolerance = 8 * np.finfo(float).eps
+    below = (query < lower) & ((lower - query) > relative_tolerance * abs(lower))
+    above = (query > upper) & ((query - upper) > relative_tolerance * abs(upper))
+    if np.any(below) or np.any(above):
+        raise RangeError(f"{label} must lie within [{lower:.8g}, {upper:.8g}] rad/s. Convert your coordinate with to_omega first; extrapolation is disabled.")
+    # np.clip creates a new array: never change the caller's frequency grid.
+    return np.asarray(np.clip(query, lower, upper))
 
 
 def validate_metadata(meta):

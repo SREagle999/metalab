@@ -1,0 +1,19 @@
+schema_version: 1
+name: DemoEpsilon
+dimensionality: 3
+symmetry: isotropic
+components:
+- iso
+input_type: epsilon
+spectral_units: Hz
+response_units: dimensionless
+time_convention: exp(-i*omega*t)
+source_description: Illustrative software fixture; not a measured or fitted material
+  dataset.
+data_status: illustrative
+epsilon_background: 1.0
+valid_frequency_range:
+  min: 120899462104245.9
+  max: 725396772625475.5
+  unit: Hz
+data_file: data.csv

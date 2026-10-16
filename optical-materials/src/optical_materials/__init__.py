@@ -1,4 +1,4 @@
-"""Public optical material data pipeline API."""
+# metamaterial data pipeline API
 from .database import load_material, save_material, available_materials
 from .loaders import register_loader
 from .material import Material

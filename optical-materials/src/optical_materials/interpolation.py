@@ -5,7 +5,6 @@ from .units import real_array
 from .conversions import complex_array
 from .errors import MaterialError, MaterialWarning, RangeError
 
-
 class ComplexInterpolator:
     def __init__(self, omega, responses):
         omega = real_array(omega, "Tabulated frequencies", positive=True)

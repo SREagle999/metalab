@@ -1,5 +1,12 @@
 # Changes
 
+## Version 0.2.2
+
+- Move all seven Python modules and the complete material database directly into `src/`, removing the nested `optical_materials` directory.
+- Update imports to `from src import ...`, including source-tree examples, the notebook, tests, and documentation.
+- Package `src` explicitly and retain recursive material payloads in built wheels. Keep `src.io` package-qualified to avoid the standard-library `io` module.
+- Preserve numerical behavior, all material data, and the user's plotting changes.
+
 ## Version 0.2.1
 
 - Merge the material additions into the existing compact project, retaining its plotting edits and removing a stray pipe before a comment that prevented plotting.py from parsing.

@@ -18,7 +18,7 @@ For a regular installation, `python -m pip install .` is sufficient. The bundled
 
 ```python
 import numpy as np
-from optical_materials import load_material, to_omega
+from src import load_material, to_omega
 
 au = load_material("Au")
 omega = to_omega(np.linspace(0.2, 5.0, 400), "eV")
@@ -79,7 +79,7 @@ The measured tables come from the CC0 refractiveindex.info database: [Johnson & 
 The short names `SiO2` and `WTe2` still identify illustrative models with invented parameters. Use `SiO2_Kischkat` for the measured infrared silica-film response. No measured WTe2 data has been added.
 
 ```python
-from optical_materials import load_material, to_omega
+from src import load_material, to_omega
 
 gold = load_material("Au_Johnson")
 # A wavelength of 0.633 micrometres, converted to supported wavenumber units:
@@ -107,7 +107,7 @@ For tabulated uniaxial materials, equality of principal components is checked at
 Copy one example folder into a custom database, edit its `material.yaml` and numeric file, and load it:
 
 ```python
-from optical_materials import load_material, save_material, available_materials
+from src import load_material, save_material, available_materials
 mat = load_material("MyMaterial", database="my-materials")
 # A direct folder or YAML path also works:
 mat = load_material("my-materials/MyMaterial")
@@ -125,15 +125,14 @@ See [the complete file schema](docs/material_schema.md) for column mappings, par
 
 ```text
 src/
-    optical_materials/
-        __init__.py     public imports
-        errors.py       shared exceptions and warnings
-        units.py        spectral conversions and endpoint checks
-        responses.py    response conversions, interpolation, analytical models
-        material.py     solver-facing tensor interface
-        io.py           readers, validation, registry, database, saving
-        plotting.py     diagnostic plots
-        data/           material folders containing metadata and numeric files
+    __init__.py         public imports
+    errors.py           shared exceptions and warnings
+    units.py            spectral conversions and endpoint checks
+    responses.py        response conversions, interpolation, analytical models
+    material.py         solver-facing tensor interface
+    io.py               readers, validation, registry, database, saving
+    plotting.py         diagnostic plots
+    data/               material folders containing metadata and numeric files
 tests/                  numerical and input-error regression suite
 notebooks/              executed demonstration
 docs/                   file schema and verification results
@@ -144,8 +143,10 @@ For a new file/source adapter, use `register_loader(input_type, loader)`. Its de
 
 The archive opens directly to `src/`, `tests/`, and the other project files. There is no extra `optical-materials` wrapper directory.
 
-To integrate with an existing project, place `src/optical_materials/` under that project's source root, merge the dependency and package-data settings into its existing configuration, and put the tests and notebook alongside its own. The public imports stay the same. Numerical code in `responses.py` and `units.py` does not read files; `io.py` owns all source interpretation and storage. `material.py` uses plotting and saving helpers only when those methods are called.
+The Python package is now named `src`. Import public functions with `from src import load_material, to_omega`; internal helpers live in `src.responses`, `src.units`, and `src.io`. The distribution name remains `optical-materials-pipeline`. Install normally or run examples from this project folder. When running a script elsewhere, install the project first so Python can resolve `src`.
 
-Internal import paths changed in version 0.2.0: model, conversion, and interpolation helpers are now in `optical_materials.responses`; source adapters and database functions are in `optical_materials.io`. The public API exported by `optical_materials` is unchanged.
+To integrate with a larger project, merge these modules and `data/` into that project's `src/` package, retain relative imports, and merge the dependency and package-data settings into its configuration. If it already has `src/__init__.py`, merge the public exports rather than overwriting its existing exports. `src.io` is package-qualified so it does not conflict with Python's standard-library `io` module. Numerical code in `responses.py` and `units.py` does not read files; `io.py` owns all source interpretation and storage.
 
-See [the change log](CHANGELOG.md) for the compact layout in version 0.2.0 and [verification results](docs/verification.md) for checks and remaining physical-data limitations.
+Version 0.2.2 changes the import path from `optical_materials` to `src`; function names and material names remain the same. The material database now sits directly at `src/data/`. There is no compatibility wrapper or nested `optical_materials` directory.
+
+See [the change log](CHANGELOG.md) for layout and version changes and [verification results](docs/verification.md) for checks and remaining physical-data limitations.

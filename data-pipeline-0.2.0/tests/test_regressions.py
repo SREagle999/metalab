@@ -16,12 +16,12 @@ import numpy as np
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
-from optical_materials import (load_material, available_materials, to_omega,
+sys.path.insert(0, str(ROOT))
+from src import (load_material, available_materials, to_omega,
                                from_omega, sigma_to_epsilon, epsilon_to_sigma,
                                MaterialError, RangeError)
-from optical_materials.io import BUILTIN_DATABASE
-from optical_materials.responses import ComplexInterpolator
+from src.io import BUILTIN_DATABASE
+from src.responses import ComplexInterpolator
 
 
 class BackgroundShapeTests(unittest.TestCase):
@@ -171,12 +171,13 @@ class UniaxialIntervalTests(unittest.TestCase):
 @unittest.skipUnless(importlib.util.find_spec("setuptools"), "Install the dev extra to run wheel integration tests")
 class DistributionTests(unittest.TestCase):
     def test_new_formats_and_nested_payloads_work_in_an_installed_wheel(self):
+        self.assertFalse((ROOT / "src" / "optical_materials").exists())
         with tempfile.TemporaryDirectory() as temporary:
             scratch = Path(temporary)
             project = scratch / "project"
-            package = project / "src" / "optical_materials"
+            package = project / "src"
             package.parent.mkdir(parents=True)
-            shutil.copytree(ROOT / "src" / "optical_materials", package,
+            shutil.copytree(ROOT / "src", package,
                             ignore=shutil.ignore_patterns("__pycache__"))
             for filename in ("pyproject.toml", "README.md"):
                 shutil.copy2(ROOT / filename, project / filename)
@@ -210,24 +211,46 @@ class DistributionTests(unittest.TestCase):
             wheel = next((project / "dist").glob("*.whl"))
             installed = scratch / "installed"
             with ZipFile(wheel) as archive:
-                expected_modules = {f"optical_materials/{name}.py" for name in
+                expected_modules = {f"src/{name}.py" for name in
                                     ("__init__", "errors", "units", "responses", "material", "io", "plotting")}
                 self.assertEqual({name for name in archive.namelist() if name.endswith(".py")}, expected_modules)
                 for extension, name in zip(("csv", "json", "tsv", "txt", "dat"), names):
-                    self.assertIn(f"optical_materials/data/{name}/nested/response.{extension}", archive.namelist())
+                    self.assertIn(f"src/data/{name}/nested/response.{extension}", archive.namelist())
+                # Relocating the package must preserve every bundled source byte.
+                for payload in BUILTIN_DATABASE.rglob("*"):
+                    if payload.is_file():
+                        archive_path = "src/data/" + payload.relative_to(BUILTIN_DATABASE).as_posix()
+                        self.assertEqual(archive.read(archive_path), payload.read_bytes())
                 archive.extractall(installed)
 
             # A fresh interpreter outside the checkout cannot accidentally import source files.
             script = """
 from pathlib import Path
 import sys
+import io
+import importlib
+import tempfile
 import numpy as np
-import optical_materials as om
+import src as om
 assert Path(om.__file__).resolve().is_relative_to(Path(sys.argv[1]).resolve())
+assert importlib.import_module('src.io') is not io
 reference = om.load_material('DemoNK').epsilon(om.to_omega([1., 2.], 'eV'))
 for name in sys.argv[2:]:
     mat = om.load_material(name)
     np.testing.assert_allclose(mat.epsilon(om.to_omega([1., 2.], 'eV')), reference)
+with tempfile.TemporaryDirectory() as saved:
+    for name in om.available_materials():
+        mat = om.load_material(name)
+        omega = np.geomspace(*mat.valid_frequency_range, 7)
+        response = mat.sigma(omega) if mat.dimensionality == 2 else mat.epsilon(omega)
+        assert np.isfinite(response).all()
+        assert response.shape == (7, mat.dimensionality, mat.dimensionality)
+        restored = om.load_material(mat.save(Path(saved) / name))
+        np.testing.assert_array_equal(restored.sigma(omega), mat.sigma(omega))
+        for endpoint in mat.valid_frequency_range:
+            for unit in ('eV', 'Hz', 'THz', 'cm-1', 'rad/s'):
+                query = om.to_omega(om.from_omega(endpoint, unit), unit)
+                np.testing.assert_allclose(mat.sigma(query), mat.sigma(endpoint), rtol=1e-12, atol=1e-12)
 """
             environment = os.environ.copy()
             environment["PYTHONPATH"] = os.pathsep.join([str(installed), *[p for p in sys.path if p and "site-packages" in p],

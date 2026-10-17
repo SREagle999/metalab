@@ -1,6 +1,6 @@
 # Material file schema
 
-Each material folder contains `material.yaml` plus a table or a parameter file. Built-in folders live under `src/optical_materials/data/`; custom databases can live elsewhere. YAML is loaded safely. Files must stay within their material folder. Schema version 1 supports CSV, TSV, whitespace-delimited text (set `delimiter: whitespace`), and JSON row-record tables. Parameter tables use the same reader but usually CSV. Blank lines and lines beginning with `#` are ignored for text tables.
+Each material folder contains `material.yaml` plus a table or a parameter file. Built-in folders live under `src/data/`; custom databases can live elsewhere. YAML is loaded safely. Files must stay within their material folder. Schema version 1 supports CSV, TSV, whitespace-delimited text (set `delimiter: whitespace`), and JSON row-record tables. Parameter tables use the same reader but usually CSV. Blank lines and lines beginning with `#` are ignored for text tables.
 
 The distribution includes the material directory recursively, so a reference such as `data_file: measurements/response.json` works both from source and after installation. Keep only material assets inside this tree.
 
@@ -109,7 +109,7 @@ Use dimensionality 2, response units S, and components `[x,y]`. Physical film th
 ## Adapter registry contract
 
 ```python
-from optical_materials import register_loader
+from src import register_loader
 
 def my_loader(metadata, payload_bytes):
     # Validate and convert the source once, then return this descriptor:

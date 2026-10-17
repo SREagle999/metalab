@@ -11,10 +11,10 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 if (ROOT / 'src').is_dir():
-    sys.path.insert(0, str(ROOT / 'src'))
+    sys.path.insert(0, str(ROOT))
 
-from optical_materials import available_materials, load_material, save_material, to_omega, epsilon_to_nk, RangeError
-from optical_materials.io import BUILTIN_DATABASE
+from src import available_materials, load_material, save_material, to_omega, epsilon_to_nk, RangeError
+from src.io import BUILTIN_DATABASE
 
 MEASURED = {'Au_Johnson': 49, 'Ag_Johnson': 49, 'SiO2_Kischkat': 1451}
 ADDED = {*MEASURED, 'Au_Johnson_Epsilon', 'Au_Johnson_Sigma'}

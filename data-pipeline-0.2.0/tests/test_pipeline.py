@@ -14,14 +14,14 @@ import yaml
 # Run directly from the source checkout as well as an installed package.
 ROOT = Path(__file__).resolve().parents[1]
 if (ROOT / "src").is_dir():
-    sys.path.insert(0, str(ROOT / "src"))
+    sys.path.insert(0, str(ROOT))
 
-from optical_materials import (load_material, available_materials, save_material, register_loader,
+from src import (load_material, available_materials, save_material, register_loader,
     to_omega, from_omega, nk_to_epsilon, epsilon_to_nk, sigma_to_epsilon, epsilon_to_sigma,
     MaterialError, MaterialWarning, RangeError, ResponseUnavailableError)
-from optical_materials.units import C, H, HBAR, E_CHARGE, EPSILON_0
-from optical_materials.responses import Oscillator, DrudeLorentzParameters, evaluate_drude_lorentz
-from optical_materials.io import BUILTIN_DATABASE
+from src.units import C, H, HBAR, E_CHARGE, EPSILON_0
+from src.responses import Oscillator, DrudeLorentzParameters, evaluate_drude_lorentz
+from src.io import BUILTIN_DATABASE
 
 
 class UnitsTests(unittest.TestCase):

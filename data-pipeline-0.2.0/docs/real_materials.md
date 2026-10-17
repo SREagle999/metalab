@@ -30,7 +30,7 @@ The pipeline accepts frequency coordinates, so wavelength is converted using `wa
 For gold, the additional epsilon table uses `epsilon = (n + i*kappa)**2`. The sigma table uses `sigma = -i*epsilon_0*omega*(epsilon - 1)`, with `epsilon_0 = 8.8541878188e-12 F/m` and the exp(-i*omega*t) convention. This is effective bulk conductivity in S/m relative to background 1, including polarization contributions; it is not an independent conductivity measurement or a sheet conductivity.
 
 ```python
-from optical_materials import load_material, to_omega
+from src import load_material, to_omega
 
 material = load_material("Au_Johnson")
 omega = to_omega(10000 / 0.633, "cm-1")  # 633 nm = 0.633 µm

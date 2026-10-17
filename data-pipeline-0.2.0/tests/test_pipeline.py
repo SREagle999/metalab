@@ -92,7 +92,8 @@ class ConversionTests(unittest.TestCase):
 
 class PublicApiTests(unittest.TestCase):
     def test_all_examples_load_and_evaluate(self):
-        self.assertEqual(len(available_materials()),8)
+        self.assertTrue({'Au', 'Ag', 'SiO2', 'WTe2', 'DemoNK', 'DemoEpsilon',
+                         'DemoBulkSigma', 'DemoBiaxial'}.issubset(available_materials()))
         for name in available_materials():
             with self.subTest(name=name):
                 mat=load_material(name)

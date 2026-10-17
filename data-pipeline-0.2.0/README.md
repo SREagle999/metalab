@@ -60,6 +60,11 @@ omega = 2*pi*f = E_eV*e/hbar = 2*pi*c*100*wavenumber_cm-1
 |---|---|---|
 | Au | Drude–Lorentz, 5 oscillators, eV | Published Rakić LD parameters |
 | Ag | Drude–Lorentz, 5 oscillators, eV | Published Rakić LD parameters |
+| Au_Johnson | Measured n/kappa, 49 points | Johnson & Christy, 0.1879–1.937 µm |
+| Ag_Johnson | Measured n/kappa, 49 points | Johnson & Christy, 0.1879–1.937 µm |
+| SiO2_Kischkat | Measured n/kappa, 1451 points | Kischkat et al., 1.53846–14.28571 µm; sputtered film |
+| Au_Johnson_Epsilon | Tabulated epsilon | Derived from Au_Johnson at the same samples |
+| Au_Johnson_Sigma | Tabulated bulk sigma in S/m | Derived from Au_Johnson with epsilon_background=1 |
 | SiO2 | Lorentz, 3 oscillators, cm-1 | **Illustrative invented parameters; replace for physical work** |
 | WTe2 | Anisotropic sheet conductivity model, eV | **Illustrative invented parameters; replace for physical work** |
 | DemoNK | Isotropic tabulated n and kappa, eV | Synthetic validation fixture |
@@ -69,7 +74,23 @@ omega = 2*pi*f = E_eV*e/hbar = 2*pi*c*100*wavenumber_cm-1
 
 Au and Ag use [Rakić et al., Applied Optics 37, 5271–5283 (1998)](https://doi.org/10.1364/AO.37.005271). Numerical parameter transcription was cross-checked against the database maintainer's [Au evaluator](https://github.com/polyanskiy/refractiveindex.info-scripts/blob/main/scripts/Rakic%201998%20-%20Au%20(LD%20model).py) and [Ag evaluator](https://github.com/polyanskiy/refractiveindex.info-scripts/blob/main/scripts/Rakic%201998%20-%20Ag%20(LD%20model).py). In our parameter format, `omega_p = sqrt(f0)*wp` and each `amplitude = fj*wp**2`; the energy units are converted to angular SI units once on load. The demonstration uses 0.2–5 eV and should not be treated as a universal fit for every sample or fabrication condition.
 
-No SiO2 or WTe2 experimental dataset was supplied with the task. Those labels exercise the requested model routes; their metadata and plot titles identify the illustrative status. Replace their CSV parameter values, provenance, and valid range with a chosen published fit or measurement before using them quantitatively.
+The measured tables come from the CC0 refractiveindex.info database: [Johnson & Christy (1972)](https://doi.org/10.1103/PhysRevB.6.4370) for Au/Ag and [Kischkat et al. (2012)](https://doi.org/10.1364/AO.51.006789) for SiO2. Source YAML, license, pinned revision, and SHA-256 hashes accompany the data. See [the dataset guide](docs/real_materials.md) for sample conditions, transformations, and limitations.
+
+The short names `SiO2` and `WTe2` still identify illustrative models with invented parameters. Use `SiO2_Kischkat` for the measured infrared silica-film response. No measured WTe2 data has been added.
+
+```python
+from optical_materials import load_material, to_omega
+
+gold = load_material("Au_Johnson")
+# A wavelength of 0.633 micrometres, converted to supported wavenumber units:
+omega = to_omega(10000.0 / 0.633, "cm-1")
+epsilon = gold.epsilon(omega)  # 3 x 3 relative-permittivity tensor
+silver = load_material("Ag_Johnson")
+silica = load_material("SiO2_Kischkat")
+silica_epsilon = silica.epsilon(to_omega(1000, "cm-1"))
+```
+
+Together, `Au_Johnson`, `Au_Johnson_Epsilon`, `Au_Johnson_Sigma`, and the existing `Au` model exercise all four input forms with published material data. The first three agree at the source samples. Conductivity and permittivity interpolation need not agree between samples, and the independently fitted `Au` model is not expected to match the measured table exactly.
 
 ## Validation and interpolation
 

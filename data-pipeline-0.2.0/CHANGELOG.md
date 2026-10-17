@@ -1,5 +1,14 @@
 # Changes
 
+## Version 0.2.1
+
+- Merge the material additions into the existing compact project, retaining its plotting edits and removing a stray pipe before a comment that prevented plotting.py from parsing.
+
+- Added full measured Johnson–Christy Au/Ag n/k tables and the Kischkat SiO2 infrared-film n/k table, without fitting or resampling.
+- Added equivalent Au epsilon and effective bulk-conductivity tables to exercise the other tabulated input forms; the original Au Drude–Lorentz model remains available.
+- Preserved upstream YAML and CC0 licenses with pinned revision, SHA-256, source DOI, wavelength bounds, sample conditions, and conversion metadata.
+- Added source-sample, conversion, range, save/reload, and provenance regression checks, plus executed notebook examples and a dataset guide.
+
 ## Version 0.2.0
 
 - Reduce the package from thirteen Python files to seven: `__init__.py`, `errors.py`, `units.py`, `responses.py`, `material.py`, `io.py`, and `plotting.py`.

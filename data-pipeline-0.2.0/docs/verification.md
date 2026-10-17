@@ -1,36 +1,35 @@
-# Verification of version 0.2.0
+# Verification of version 0.2.1
 
-The source package and installed wheel were checked with Python 3.12.14 on Windows. The package declares Python 3.10 or newer; other Python versions and operating systems were not exercised in this run.
+Checked on Windows with Python 3.12.14. The package declares Python 3.10 or newer; other interpreter versions and operating systems were not exercised in this run.
 
 | Check | Result |
 |---|---|
-| Standalone regression suite | 84 tests passed, including 15 new regression tests |
-| Notebook execution | All 19 code cells executed sequentially through IPython in process, with captured outputs and no cell errors |
-| Diagnostic figures | Eight figures generated and visually inspected |
-| Equivalent n/kappa and epsilon inputs | Maximum absolute difference 5.551e-16 across 401 off-grid queries |
-| Bulk conductivity conversion round trip | Maximum relative difference 2.152e-16 |
-| Source save/reload | All eight definitions matched exactly; original numeric-file bytes retained |
-| Background shape regression | Scalar and matching backgrounds work; backgrounds that expand a query fail with MaterialError in bulk and sheet paths |
-| Equivalent endpoint queries | All 80 combinations of eight materials, two endpoints, and five coordinates passed; genuine extrapolation remains rejected |
-| Uniaxial interval regression | Valid ranges between samples load; equality at one interior sample cannot hide different endpoint responses |
-| Distribution regression | A built wheel includes nested CSV, JSON, TSV, TXT, and DAT material files; all five formats load in a fresh interpreter outside the checkout |
-| Installed version 0.2.0 | All eight database materials evaluated and saved/reloaded through Material.save from the final installed wheel; all 80 endpoint queries passed |
-| Compact architecture | Exactly seven Python modules in both source and wheel; public exports match version 0.1.1 |
-| Material data migration | All metadata and numeric payload bytes match the preceding release; the bundled folder is now named data |
+| Regression suite | 93 tests passed: the preceding 84 checks plus nine published-data regression tests |
+| Full source-sample comparison | All 49 Au, 49 Ag, and 1451 SiO2 rows match the preserved upstream n/k tables after frequency conversion |
+| Independent reference values | Au short- and long-wavelength samples and the first SiO2 sample match explicit reference values |
+| Au representations | n/k and epsilon agree at source samples and between them; sigma agrees at all source samples |
+| Source provenance | Pinned revision, SHA-256, CC0 license, sample counts, coordinate conversion, and valid bounds checked |
+| Original examples | All 16 original metadata and numeric files remain byte-for-byte unchanged |
+| Merged implementation | Numerical evaluators and source adapters unchanged; existing plotting import placement and comments retained, with a stray syntax-breaking pipe removed |
+| Notebook execution | All 22 code cells executed sequentially through IPython in process, with captured outputs and no cell errors |
+| Diagnostic plots | Eleven figures generated; the three added measured-data and interpolation-residual figures visually inspected |
+| Notebook save/reload | All 13 definitions saved and reloaded with exactly matching responses and metadata |
+| Final installed wheel | All 13 materials evaluated and saved/reloaded in a fresh interpreter outside the source checkout |
+| Endpoint conversion | All 130 combinations of 13 materials, two endpoints, and five coordinates passed in the installed wheel |
+| Distribution | Final wheel includes all added CSV/YAML tables, original source YAML, and source licenses |
+| Compact layout | Exactly seven Python modules in source and wheel; flat archive opens directly to src, tests, notebooks, docs, and project configuration |
 
-Regression tests include independently evaluated Au/Ag model equations and the conductivity-model equation, known unit factors, all five spectral-coordinate round trips, arbitrary oscillator count, missing/duplicate/invalid table entries, parameter-unit errors, positive-time input convention, custom column names, CSV/TSV/whitespace/JSON input, tensor shapes, anisotropy, explicit film conversion, out-of-range queries, custom source registration, and adding a material by folder alone.
+The retained regression suite checks numerical conventions, unit factors, arbitrary oscillator counts, tensor shapes, dimensionality, anisotropy, explicit sheet-to-film conversion, malformed input, custom loaders, interpolation, background shape rejection, endpoint rounding, and uniaxial intervals. Its distribution test also builds a wheel containing nested CSV, JSON, TSV, TXT, and DAT payloads and evaluates them in a fresh interpreter.
 
-The added regression tests were run against version 0.1.0 first and reproduced the reviewed failures before the implementation was changed. The complete suite passed after the fixes. The notebook includes executable examples of background shape rejection, endpoint conversion, and a valid uniaxial interval between samples.
+The added tests compare every measured source row with its loaded response, verify the n/k inverse, check provenance and source bounds, independently evaluate the Au SI conductivity conversion, reject extrapolation for every new entry, and verify standalone save/reload. Au conductivity and permittivity interpolation are deliberately not asserted equal between samples: their conversion depends on frequency. The notebook plots this difference explicitly.
 
-For version 0.2.0, moved numerical functions and source adapters were compared as abstract syntax trees against the preceding implementation. The full 84-test suite was then run from the flattened project root. The distribution regression checks that the built wheel contains exactly the seven current modules and loads nested payloads in all five tested formats. Root-level public exports and the bytes of all bundled material definitions were also compared against version 0.1.1.
+These checks establish faithful import and software behavior. The silica table represents the specified sputtered film sample. The short-name SiO2 and WTe2 models remain illustrative. No measured WTe2 entry or fitted replacement model was added. See [the dataset guide](real_materials.md) for source conditions and the WTe2 normalization issue.
 
-These checks validate the software pipeline and the documented numerical conventions. They do not establish experimental accuracy of the illustrative SiO2 or WTe2 parameter sets, causality of arbitrary supplied tables, or suitability for a particular fabricated sample. Their metadata explicitly identifies them as illustrative.
-
-Reproduce the regression suite from the package root:
+Reproduce the suite from the package root:
 
 ```sh
 python -m pip install -e ".[notebook,dev]"
 python -m unittest discover -s tests -v
 ```
 
-Run all notebook cells in `notebooks/material_pipeline_demo.ipynb` to reproduce the demonstrated numerical checks and plots. Saving examples in that notebook uses a temporary directory, allowing it to be rerun without overwriting material definitions.
+Run all cells in notebooks/material_pipeline_demo.ipynb to reproduce its numerical checks and plots. Its save/reload examples use a temporary directory and can be rerun.

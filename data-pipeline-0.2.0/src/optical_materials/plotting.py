@@ -41,7 +41,7 @@ def plot_response(material, quantity, x_axis="eV", *, omega=None, points=500,
         axes[1].plot(x[order], values.imag[order], label=label)
         if label == "isotropic":
             break
-|   # graph properties
+    # graph properties
     unit = "dimensionless" if quantity == "epsilon" else ("S" if material.dimensionality == 2 else "S/m")
     symbol = "$\\epsilon_r$" if quantity == "epsilon" else "$\\sigma$"
     axes[0].set_ylabel(f"Re {symbol} ({unit})")

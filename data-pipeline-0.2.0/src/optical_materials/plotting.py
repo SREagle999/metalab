@@ -1,5 +1,6 @@
 """Diagnostic plots share real/imaginary axes for every principal component."""
 import numpy as np
+import matplotlib.pyplot as plt
 from .units import from_omega
 from .errors import MaterialError
 
@@ -9,7 +10,6 @@ LABELS = {"eV": "Photon energy (eV)", "Hz": "Frequency (Hz)", "THz": "Frequency 
 
 def plot_response(material, quantity, x_axis="eV", *, omega=None, points=500,
                   component=None, axes=None, **response_kwargs):
-    import matplotlib.pyplot as plt
     if quantity not in ("epsilon", "sigma"):
         raise MaterialError("Plot quantity must be epsilon or sigma.")
     if omega is None:

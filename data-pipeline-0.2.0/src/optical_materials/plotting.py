@@ -10,12 +10,13 @@ LABELS = {"eV": "Photon energy (eV)", "Hz": "Frequency (Hz)", "THz": "Frequency 
 
 def plot_response(material, quantity, x_axis="eV", *, omega=None, points=500,
                   component=None, axes=None, **response_kwargs):
-    if quantity not in ("epsilon", "sigma"):
+    if quantity not in ("epsilon", "sigma"): # error handling
         raise MaterialError("Plot quantity must be epsilon or sigma.")
     if omega is None:
         if not isinstance(points, int) or isinstance(points, bool) or points < 2:
             raise MaterialError("A diagnostic plot needs at least two points.")
         omega = np.geomspace(*material.valid_frequency_range, points)
+              
     x = from_omega(omega, x_axis)
     if x.ndim != 1 or x.size < 2:
         raise MaterialError("A plotting grid must be a one-dimensional array with at least two points.")
@@ -40,6 +41,7 @@ def plot_response(material, quantity, x_axis="eV", *, omega=None, points=500,
         axes[1].plot(x[order], values.imag[order], label=label)
         if label == "isotropic":
             break
+|   # graph properties
     unit = "dimensionless" if quantity == "epsilon" else ("S" if material.dimensionality == 2 else "S/m")
     symbol = "$\\epsilon_r$" if quantity == "epsilon" else "$\\sigma$"
     axes[0].set_ylabel(f"Re {symbol} ({unit})")

@@ -1,0 +1,23 @@
+schema_version: 1
+name: Au
+dimensionality: 3
+symmetry: isotropic
+components:
+- iso
+input_type: drude_lorentz
+spectral_units: eV
+response_units: dimensionless
+time_convention: exp(-i*omega*t)
+source_description: Rakic et al., Applied Optics 37, 5271-5283 (1998), DOI 10.1364/AO.37.005271.
+  Lorentz-Drude parameter values cross-checked against the refractiveindex.info maintainer
+  scripts. omega_p here equals sqrt(f0)*wp; amplitudes equal fj*wp^2. Demonstration
+  restricted to 0.2-5 eV.
+data_status: published_model
+epsilon_background: 1.0
+valid_frequency_range:
+  min: 0.2
+  max: 5.0
+  unit: eV
+source_url: https://doi.org/10.1364/AO.37.005271
+parameter_crosscheck_url: https://github.com/polyanskiy/refractiveindex.info-scripts/blob/main/scripts/Rakic%201998%20-%20Au%20(LD%20model).py
+parameter_file: parameters.csv

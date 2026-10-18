@@ -1,0 +1,42 @@
+schema_version: 1
+name: SiO2_Kischkat
+dimensionality: 3
+symmetry: isotropic
+components:
+- iso
+input_type: nk
+spectral_units: cm-1
+response_units: dimensionless
+time_convention: exp(-i*omega*t)
+source_description: Kischkat et al., DOI 10.1364/AO.51.006789. Published n,k table
+  from refractiveindex.info; native n,k values.
+valid_frequency_range:
+  min: 700.000210000063
+  max: 6500.006500006501
+  unit: cm-1
+data_file: data.csv
+epsilon_background: 1.0
+data_status: measured
+source_doi: 10.1364/AO.51.006789
+source_url: https://raw.githubusercontent.com/polyanskiy/refractiveindex.info-database/c5c2f188e848453def5970e347399d653df2ffc2/database/data/main/SiO2/nk/Kischkat.yml
+source_database: refractiveindex.info
+source_revision: c5c2f188e848453def5970e347399d653df2ffc2
+source_sha256: 5340a3c4b2474ac31432d3841283058f11841c3f9f96fd5a6602ee53d9d33ba7
+source_license: CC0-1.0
+retrieved_date: '2026-10-16'
+source_sample_description: 510-nm single layer on Si substrate. Prepared by room temperature
+  reactive sputter deposition using Si target and 2.0 SCCM O<sub>2</sub> flux.<br>Data
+  on the influence of deposition conditions on the optical properties of the film
+  can be found in the original publication.<br>Data on the refractive index (n) in
+  the visible can be found in the original publication.
+source_spectral_units: um
+source_wavelength_range_um:
+- 1.53846
+- 14.28571
+source_point_count: 1451
+transformation: wavenumber_cm-1 = 10000 / wavelength_um; sorted in increasing wavenumber;
+  no fitting, smoothing, or resampling.
+sample_thickness_m: 5.1e-07
+interpretation: 3D local optical response reported for a sputtered 510-nm film on
+  Si; sample-specific, not a universal silica fit. Thickness is provenance, not an
+  automatic conversion.

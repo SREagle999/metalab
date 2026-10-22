@@ -1,5 +1,11 @@
 # Changes
 
+## Unreleased
+
+- Add a real-axis mode-map layer integrated with the loaded `Material` API: bulk Maxwell SVD, isotropic and principal-axis anisotropic reflection, anisotropic film response, local anisotropic-sheet dispersion/IFCs, and peak tracking.
+- Document units, proxy meanings, boundary-condition distinctions, and solver limits; keep material parsing and loader behavior unchanged.
+- Add synthetic analytical-limit tests for bulk, interface, film, sheet, scan, and peak routines.
+
 ## Version 0.2.2
 
 - Move all seven Python modules and the complete material database directly into `src/`, removing the nested `optical_materials` directory.

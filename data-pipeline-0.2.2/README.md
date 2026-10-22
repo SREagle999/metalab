@@ -1,8 +1,8 @@
 # Optical materials data pipeline
 
-A small Python package that converts optical-response data into validated material tensors. It reads refractive index, permittivity, conductivity, and analytical Drude–Lorentz models. A later solver only needs `material.epsilon(omega)` or `material.sigma(omega)`.
+A small Python package that converts optical-response data into validated material tensors and provides initial real-axis mode maps. Material data are loaded once; the mode layer queries `material.epsilon(omega)` or `material.sigma(omega)` through the same public interface.
 
-This release performs no electromagnetic mode solving. It supports diagonal tensors in the material's principal-axis frame, with magnetic permeability assumed to be one.
+The `src.modes` layer provides initial real-axis electromagnetic mode and isofrequency maps using the loaded material interface. It supports diagonal tensors in their principal-axis frame; magnetic permeability is assumed to be one. The real-axis maps are resonance proxies, not exact complex eigenvalues.
 
 ## Install and run
 
@@ -132,6 +132,7 @@ src/
     material.py         solver-facing tensor interface
     io.py               readers, validation, registry, database, saving
     plotting.py         diagnostic plots
+    modes/              real-axis resonance proxies, scans, peaks, and plots
     data/               material folders containing metadata and numeric files
 tests/                  numerical and input-error regression suite
 notebooks/              executed demonstration
@@ -139,7 +140,7 @@ docs/                   file schema and verification results
 pyproject.toml          dependency and distribution configuration
 ```
 
-For a new file/source adapter, use `register_loader(input_type, loader)`. Its descriptor contract is documented in the schema guide. Existing formats require only a new material folder. Core numerical evaluators never parse CSV/YAML or know database names. Off-diagonal tensors, tensor rotations, permeability, automatic fitting, and dispersion/eigenmode solvers are outside this release.
+For a new file/source adapter, use `register_loader(input_type, loader)`. Its descriptor contract is documented in the schema guide. Existing formats require only a new material folder. Core numerical evaluators never parse CSV/YAML or know database names. The mode layer currently supports diagonal tensors in principal-axis geometries; off-diagonal tensors, tensor rotations, permeability, automatic fitting, and exact complex-root eigenvalue solving remain outside this release.
 
 The archive opens directly to `src/`, `tests/`, and the other project files. There is no extra `optical-materials` wrapper directory.
 
@@ -149,4 +150,4 @@ To integrate with a larger project, merge these modules and `data/` into that pr
 
 Version 0.2.2 changes the import path from `optical_materials` to `src`; function names and material names remain the same. The material database now sits directly at `src/data/`. There is no compatibility wrapper or nested `optical_materials` directory.
 
-See [the change log](CHANGELOG.md) for layout and version changes and [verification results](docs/verification.md) for checks and remaining physical-data limitations.
+See [the change log](CHANGELOG.md) for layout and version changes, [verification results](docs/verification.md) for checks and remaining physical-data limitations, and [the mode-map guide](docs/mode_maps.md) for proxy definitions and examples.

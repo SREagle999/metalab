@@ -15,7 +15,7 @@ notebook = ["jupyterlab>=4,<5", "ipykernel>=6,<8"]
 dev = ["build>=1,<2", "nbclient>=0.10,<1", "nbformat>=5,<6", "setuptools>=69"]
 
 [tool.setuptools]
-packages = ["src"]
+packages = ["src", "src.modes"]
 
 [tool.setuptools.package-data]
 # Include every material payload, including nested files and custom extensions.
